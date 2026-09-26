@@ -1,8 +1,8 @@
 package com.portfolio.portfolio_spring;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +12,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class IndexController {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    // application.properties or Render Environment Variable theke API Key read korbe
+    @Value("${RESEND_API_KEY}")
+    private String resendApiKey;
 
     @GetMapping("/")
     public String indexPage() {
@@ -26,16 +27,25 @@ public class IndexController {
                           @RequestParam String message,
                           RedirectAttributes redirectAttributes) {
         try {
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            Resend resend = new Resend(resendApiKey);
 
-            // Jekhane mail-ti pouchabe (apnar personal email address)
-            mailMessage.setTo("sarawermd@gmail.com");
+            String htmlBody = String.format("""
+                <h3>New Message from Portfolio</h3>
+                <p><strong>Name:</strong> %s</p>
+                <p><strong>Email:</strong> %s</p>
+                <p><strong>Message:</strong></p>
+                <p>%s</p>
+            """, name, email, message.replace("\n", "<br/>"));
 
-            mailMessage.setSubject("New Portfolio Message from " + name);
-            mailMessage.setReplyTo(email); // Inbox-e 'Reply' dile direct visitor-er mail-e reply jabe
-            mailMessage.setText("Name: " + name + "\nEmail: " + email + "\n\nMessage:\n" + message);
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from("onboarding@resend.dev")
+                    .to("sarawermd@gmail.com")
+                    .replyTo(email) // Inbox-e Direct 'Reply' button-e click korle visitor-er email-e response jabe
+                    .subject("New Portfolio Message from " + name)
+                    .html(htmlBody)
+                    .build();
 
-            mailSender.send(mailMessage);
+            resend.emails().send(params);
 
             redirectAttributes.addFlashAttribute("success", "Message sent successfully!");
         } catch (Exception e) {
