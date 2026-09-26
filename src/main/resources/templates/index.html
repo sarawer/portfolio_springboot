@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -301,6 +301,7 @@
   </main>
 
   <!-- ===== CONTACT / FOOTER ===== -->
+  <!-- ===== CONTACT / FOOTER ===== -->
   <footer class="footer" id="contact">
 
     <h2 class="section__title">Let's talk</h2>
@@ -313,16 +314,27 @@
       <a href="https://linkedin.com/in/sarawer/" class="btn btn--ghost" target="_blank" rel="noopener">LinkedIn</a>
     </div>
 
-    <form class="contact-form" action="/contact" method="post">
+    <!-- Success Notification -->
+    <div th:if="${success}" style="color: #4CAF50; font-weight: 600; margin-bottom: 15px; text-align: center;">
+      <p th:text="${success}"></p>
+    </div>
+
+    <!-- Error Notification -->
+    <div th:if="${error}" style="color: #f44336; font-weight: 600; margin-bottom: 15px; text-align: center;">
+      <p th:text="${error}"></p>
+    </div>
+
+    <!-- Thymeleaf Form -->
+    <form class="contact-form" th:action="@{/contact}" method="post">
       <div class="contact-form__row">
-        <input type="text" name="name" placeholder="Your Name" aria-label="Your Name">
-        <input type="email" name="email" placeholder="Your Email" aria-label="Your Email">
+        <input type="text" name="name" placeholder="Your Name" aria-label="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" aria-label="Your Email" required>
       </div>
-      <textarea name="message" rows="5" placeholder="Your Message" aria-label="Your Message"></textarea>
+      <textarea name="message" rows="5" placeholder="Your Message" aria-label="Your Message" required></textarea>
       <button type="submit" class="contact-form__submit">Send Message</button>
     </form>
 
-    <p class="footer__copy">© 2026 Md. Sarawer Bhuiyan. Built with HTML &amp; CSS.</p>
+    <p class="footer__copy">© 2026 Md. Sarawer Bhuiyan. Built with Spring Boot &amp; Thymeleaf.</p>
   </footer>
 
 </body>
